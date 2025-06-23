@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from model import MNIST_NN
 
@@ -20,8 +21,6 @@ test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=bs)
 
 ### model
 model = MNIST_NN()
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
 ####
 
 def training(
@@ -29,14 +28,24 @@ def training(
         dataloader=train_dataloader
         lr=lr,
         epochs=epochs,
-        criterion=criterion,
-        optimizer=optimizer
 ):
-    model.train()
-    optimizer.zero_grad()
-    for batch, (img, lbl) in enumerate(dataloader):
-        pred = model(img)
-        loss = criterion(pred, lbl)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
 
-        loss.backward()
-        optimizer.step()
+    for epoch in range(epochs):
+        model.train()
+        total_loss = 0
+        progress_bar = tqdm(
+            enumerate(train_dataloader),
+            total=len(train_dataloader),
+            desc=f"epoch: {epoch+1} / {epochs}"
+        )
+
+        for batch, (img, lbl) in progress_bar:
+            optimizer.zero_grad()
+            pred = model(img)
+            loss = criterion(pred, lbl)
+            loss.backward()
+            total_loss += loss.item()
+            optimizer.step()
+            progress_bar.set_postfix(loss=f"{loss.item():.4f}")

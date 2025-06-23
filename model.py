@@ -4,7 +4,7 @@ import torch.nn as nn
 class MNIST_NN(nn.Module):
     def __init__(
             self,
-            layer_dim=1024,
+            layer_dim=256,
     ):
         super().__init__()
         self.layer1 = nn.Linear(784, layer_dim)
@@ -21,3 +21,7 @@ class MNIST_NN(nn.Module):
         x = self.layer3(x)
         pred = nn.Softmax(x)
         return pred
+    
+
+if __name__ == "__main__":
+    
