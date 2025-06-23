@@ -8,7 +8,7 @@ from model import MNIST_NN
 
 
 def generation(
-    target=0,
+    target=7,
     lr=0.001,
     epochs=10000
 ):
@@ -29,6 +29,11 @@ def generation(
         loss = criterion(output, label)
         loss.backward()
         optimizer.step()
+
+    logit = model(img_tensor)
+    loss = criterion(logit, label)
+    pred = nn.Softmax(logit)
+    print(f"{pred}\n{target}\n{loss}")
 
     img = img_tensor.detach().view(28, 28)
     SAVE_PATH = f"./{target}.png"
