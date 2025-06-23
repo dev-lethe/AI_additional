@@ -13,15 +13,10 @@ class MNIST_NN(nn.Module):
         self.act = nn.ReLU()
 
     def forward(self, input):
-        x = input.reshape([784, 1])
+        x = input.view(input.size(0), -1) 
         x = self.layer1(x)
         x = self.act(x)
         x = self.layer2(x)
         x = self.act(x)
         x = self.layer3(x)
-        pred = nn.Softmax(x)
-        return pred
-    
-
-if __name__ == "__main__":
-    
+        return x
