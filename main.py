@@ -12,9 +12,9 @@ from generation import generation
 # hyper parameters
 bs = 64
 lr = 0.002
-epochs = 5
+epochs = 7
 target = 7
-LOAD = False
+LOAD = True
 
 # dataset
 train_data = torchvision.datasets.MNIST(root="/home/lethe/AI/data/train", train=True, transform=transforms.ToTensor())
@@ -43,4 +43,4 @@ acc = evaluation(
 )
 print(f"accuracy: {acc}")
 
-generation(target=target)
+generation(target=target, conf=True)
