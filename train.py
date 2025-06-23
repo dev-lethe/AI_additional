@@ -59,14 +59,8 @@ def training(
 
 def evaluation(
         model=model,
-        dataloader=test_dataloader,
-        load=False
+        dataloader=test_dataloader
 ):
-    if load:
-        ckpt = torch.load("/home/lethe/AI/data/model.pt")
-        model.load_state_dict(ckpt["model"])
-    model.eval()
-
     with torch.no_grad():
         progress_bar = tqdm(
             enumerate(dataloader),
