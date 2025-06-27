@@ -42,16 +42,9 @@ def generation(
         loss.backward()
         optimizer.step()
 
-        if i == epochs / 10:
-            lw = lw * 10
-        if i == epochs*3/10:
-            #lr = lr * 10
-            #tvw = tvw * 10
-            biw = biw * 10
-
         if i % 500 == 0:
             img = img_tensor.detach().view(28, 28)
-            SAVE_PATH = f"{target}.png"
+            SAVE_PATH = f"cnn/{target}.png"
             torchvision.utils.save_image(img.unsqueeze(0), SAVE_PATH)
 
     if conf:
@@ -61,12 +54,28 @@ def generation(
         
 
     img = img_tensor.detach().view(28, 28)
-    SAVE_PATH = f"{target}.png"
+    SAVE_PATH = f"nn/{target}.png"
     torchvision.utils.save_image(img.unsqueeze(0), SAVE_PATH)
     print(f"saved image >> {SAVE_PATH}")
 
 if __name__ == "__main__":
-    model = MNIST_CNN()
-    ckpt = torch.load("/home/lethe/AI/data/model.pt")
+    CONV = False
+    model = MNIST_NN(layer_dim=1024)
+    ckpt = torch.load("/home/lethe/AI/data/nn_model.pt")
+    if CONV:
+        model = MNIST_CNN(channel=32, dim=512)
+        ckpt = torch.load("/home/lethe/AI/data/cnn_model.pt")
     model.load_state_dict(ckpt["model"])
-    generation(conf=True)
+
+    for target in range(10):
+        generation(
+            model,
+            target=target,
+            lr=0.005,
+            lw=1e3,
+            tvw=3e-5,
+            biw=1e-5,
+            epochs=10000,
+            conf=True,
+            CONV=CONV
+        )

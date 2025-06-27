@@ -4,7 +4,7 @@ import torch.nn as nn
 class MNIST_NN(nn.Module):
     def __init__(
             self,
-            layer_dim=256,
+            layer_dim=1024,
     ):
         super().__init__()
         self.layer1 = nn.Linear(784, layer_dim)

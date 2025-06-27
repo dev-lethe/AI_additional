@@ -16,16 +16,22 @@ lr = 0.002
 epochs = 7
 target = 3
 
+layer_dim = 1024
+
 ch = 32
 dim = 512
 
 CONV = True
 LOAD = False
-SAVENAME=f"cnn_ch{ch}_dim{dim}_ks3.pt"
 
-model = MNIST_NN()
 if CONV:
     model = MNIST_CNN(channel=ch, dim=dim)
+    SAVENAME = "cnn_model.pt"
+    print("use cnn model")
+else:
+    model = MNIST_NN(layer_dim=layer_dim)
+    SAVENAME = "nn_model.pt"
+    print("use nn model")
 
 if LOAD:
     path = os.path.join("/home/lethe/AI/data/", SAVENAME)
