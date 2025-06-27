@@ -3,8 +3,9 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 from tqdm import tqdm
+import os
 
-from model import MNIST_NN
+from model import MNIST_NN, MNIST_CNN
 from train import training, evaluation
 from generation import generation
 
@@ -13,34 +14,54 @@ from generation import generation
 bs = 64
 lr = 0.002
 epochs = 7
-target = 7
-LOAD = True
+target = 3
 
-# dataset
-train_data = torchvision.datasets.MNIST(root="/home/lethe/AI/data/train", train=True, transform=transforms.ToTensor())
-test_data = torchvision.datasets.MNIST(root="/home/lethe/AI/data/test", train=False, transform=transforms.ToTensor())
-train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=bs)
-test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=bs)
+ch = 32
+dim = 512
 
-# model
+CONV = True
+LOAD = False
+SAVENAME=f"cnn_ch{ch}_dim{dim}_ks3.pt"
+
 model = MNIST_NN()
+if CONV:
+    model = MNIST_CNN(channel=ch, dim=dim)
 
 if LOAD:
-    ckpt = torch.load("/home/lethe/AI/data/model.pt")
+    path = os.path.join("/home/lethe/AI/data/", SAVENAME)
+    ckpt = torch.load(path)
     model.load_state_dict(ckpt["model"])
+    print(f"loaded model << {path}")
 else:
+    train_data = torchvision.datasets.MNIST(root="/home/lethe/AI/data/train", train=True, transform=transforms.ToTensor())
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=bs)
+
     training(
         model=model,
         dataloader=train_dataloader,
         lr=lr,
         epochs=epochs,
-        save=True
+        save=True,
+        SAVENAME=SAVENAME
     )
 
-acc = evaluation(
-    model=model,
-    dataloader=test_dataloader,
-)
-print(f"accuracy: {acc}")
+    test_data = torchvision.datasets.MNIST(root="/home/lethe/AI/data/test", train=False, transform=transforms.ToTensor())
+    test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=bs)
 
-generation(target=target, conf=True)
+    acc = evaluation(
+        model=model,
+        dataloader=test_dataloader,
+    )
+
+print(f"target: {target}")
+generation(
+    model,
+    target=target,
+    lr=0.001,
+    lw=1e5,
+    tvw=5e-4,
+    biw=5e-4,
+    epochs=30000,
+    conf=True,
+    CONV=CONV
+)

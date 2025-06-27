@@ -4,6 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import os
 
 from model import MNIST_NN
 
@@ -29,11 +30,14 @@ def training(
         dataloader=train_dataloader,
         lr=lr,
         epochs=epochs,
-        save=False
+        save=False,
+        SAVENAME="model.pt"
 ):
-    criterion = nn.CrossEntropyLoss()
+    model.train()
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
     optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
 
+    print("start training")
     for epoch in range(epochs):
         model.train()
         total_loss = 0
@@ -50,17 +54,20 @@ def training(
             loss.backward()
             total_loss += loss.item()
             optimizer.step()
-            progress_bar.set_postfix(loss=f"{loss.item():.4f}")
+            progress_bar.set_postfix(total_loss=f"{total_loss:2f}")
     
     if save:
-        SAVE_PATH = "/home/lethe/AI/data/model.pt"
+        SAVE_PATH = os.path.join("/home/lethe/AI/data/", SAVENAME)
         torch.save({"model": model.state_dict()}, SAVE_PATH)
+        print(f"saved model >> {SAVE_PATH}")
 
 
 def evaluation(
         model=model,
         dataloader=test_dataloader
 ):
+    print("evaluate model")
+    model.eval()
     with torch.no_grad():
         progress_bar = tqdm(
             enumerate(dataloader),
@@ -76,4 +83,5 @@ def evaluation(
             correct += (pred_labels == lbl).sum().item()
     
     acc = 100 * correct / nums
+    print(f"accuracy: {acc}")
     return acc
