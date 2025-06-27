@@ -24,12 +24,14 @@ dim = 512
 CONV = True
 LOAD = False
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 if CONV:
-    model = MNIST_CNN(channel=ch, dim=dim)
+    model = MNIST_CNN(channel=ch, dim=dim).to(device)
     SAVENAME = "cnn_model.pt"
     print("use cnn model")
 else:
-    model = MNIST_NN(layer_dim=layer_dim)
+    model = MNIST_NN(layer_dim=layer_dim).to(device)
     SAVENAME = "nn_model.pt"
     print("use nn model")
 
@@ -40,7 +42,7 @@ if LOAD:
     print(f"loaded model << {path}")
 else:
     train_data = torchvision.datasets.MNIST(root="/home/lethe/AI/data/train", train=True, transform=transforms.ToTensor())
-    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=bs)
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=bs).to(device)
 
     training(
         model=model,
@@ -52,7 +54,7 @@ else:
     )
 
     test_data = torchvision.datasets.MNIST(root="/home/lethe/AI/data/test", train=False, transform=transforms.ToTensor())
-    test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=bs)
+    test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=bs).to(device)
 
     acc = evaluation(
         model=model,
